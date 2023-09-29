@@ -1,0 +1,10 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "JARS/c3p0-0.9.5.4.jar",
+        "JARS/jcalendar-1.4.jar",
+        "JARS/mchange-commons-java-0.2.16.jar",
+        "JARS/mysql-connector-java-8.0.17.jar",
+        "JARS/joda-time-2.12.5.jar"
+    ]
+}
