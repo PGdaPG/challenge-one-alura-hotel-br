@@ -58,6 +58,9 @@ public class Reserva {
         SimpleDateFormat padrao = new SimpleDateFormat("yyyy-MM-dd");
         return padrao.format(this.dataSaida);
     }
+    public Integer getIdReserva() {
+        return this.idReserva;
+    }
     @Override
 	public String toString() {
 		return String.format("A reserva : %tD, %tD", this.dataEntrada, this.dataSaida, + this.valor + this.formaPagamento);
