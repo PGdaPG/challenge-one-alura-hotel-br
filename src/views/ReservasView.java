@@ -163,7 +163,7 @@ public class ReservasView extends JFrame {
 		txtValor.setBackground(SystemColor.text);
 		txtValor.setHorizontalAlignment(SwingConstants.CENTER);
 		txtValor.setForeground(Color.BLACK);
-		txtValor.setBounds(78, 328, 43, 33);
+		txtValor.setBounds(78, 328, 87, 33);
 		txtValor.setEditable(false);
 		txtValor.setFont(new Font("Roboto Black", Font.BOLD, 17));
 		txtValor.setBorder(javax.swing.BorderFactory.createEmptyBorder());
@@ -303,35 +303,42 @@ public class ReservasView extends JFrame {
 		txtDataS.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
 				//Ativa o evento, após o usuário selecionar as datas, o valor da reserva deve ser calculado
-				//double valor = calcularValorReserva();
-				calcularValorReserva();
+				if (ReservasView.txtDataS.getDate() != null) {
+					calcularValorReserva();
+				}
 			}	
 		}); 
 		txtDataE.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
 				//Ativa o evento, após o usuário selecionar as datas, o valor da reserva deve ser calculado
-				//double valor = calcularValorReserva();
-				calcularValorReserva();
+				if (ReservasView.txtDataS.getDate() != null) {
+					calcularValorReserva();
+				}
 			}	
 		}); 
 		JPanel btnProximo = new JPanel();
 		btnProximo.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
+			public void mouseClicked(MouseEvent event) {
 				if (ReservasView.txtDataE.getDate() != null && ReservasView.txtDataS.getDate() != null) {	
 					String formaPagamento = ReservasView.txtFormaPagamento.getSelectedItem().toString();
 					Date dataEntrada = ReservasView.txtDataE.getDate();
 					Date dataSaida = ReservasView.txtDataS.getDate();
-					
 					Double valor = calcularValorReserva();
-
-					Double.parseDouble(ReservasView.txtValor.getText());
 					
-					Reserva reserva = new Reserva(dataEntrada, dataSaida, valor, formaPagamento);					
-					System.out.println(reserva.toString());	
-					reservaController.salvar(reserva);
+					Reserva reserva = new Reserva(dataEntrada, dataSaida, valor, formaPagamento);
+					try {
+						reservaController.salvar(reserva);
+						JOptionPane.showMessageDialog(null, "Reserva Efetuada ");
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, "Não Salvo");
+					}
+					
+
 					RegistroHospede registro = new RegistroHospede();
+					registro.setTxtNreserva(reserva.getIdReserva());
 					registro.setVisible(true);
+					dispose();
 				} else {
 					JOptionPane.showMessageDialog(null, "Deve preencher todos os campos.");
 				}

@@ -17,6 +17,13 @@ public class Reserva {
         this.valor = valor;
         this.formaPagamento = formaPagamento;
     }
+    public Reserva(Integer idReserva,Date dataEntrada, Date dataSaida, Double valor, String formaPagamento) {
+        this.idReserva = idReserva;
+        this.dataEntrada = dataEntrada;
+        this.dataSaida = dataSaida;
+        this.valor = valor;
+        this.formaPagamento = formaPagamento;
+    }
 
     public Date getDataEntrada() {
         return this.dataEntrada;
@@ -60,6 +67,9 @@ public class Reserva {
     }
     public Integer getIdReserva() {
         return this.idReserva;
+    }
+    public void setIdReserva(Integer idReserva){
+        this.idReserva = idReserva;
     }
     @Override
 	public String toString() {

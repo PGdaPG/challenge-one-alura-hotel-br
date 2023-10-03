@@ -7,6 +7,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTextField;
 import java.awt.Color;
 import com.toedter.calendar.JDateChooser;
+
+import controller.HospedeController;
+import model.Hospede;
+import model.Reserva;
+
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
@@ -20,6 +25,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.awt.event.ActionEvent;
 import java.awt.Toolkit;
 import javax.swing.SwingConstants;
@@ -38,6 +45,8 @@ public class RegistroHospede extends JFrame {
 	private JLabel labelExit;
 	private JLabel labelAtras;
 	int xMouse, yMouse;
+	
+	private HospedeController hospedeController;
 
 	/**
 	 * Launch the application.
@@ -184,7 +193,7 @@ public class RegistroHospede extends JFrame {
 		txtNacionalidade.setFont(new Font("Roboto", Font.PLAIN, 16));
 		txtNacionalidade.setModel(new DefaultComboBoxModel(new String[] {"alemão", "andorrano", "angolano", "antiguano", "saudita", "argelino", "argentino", "armênio", "australiano", "austríaco", "azerbaijano", "bahamense", "bangladês, bangladense", "barbadiano", "bahreinita", "belga", "belizenho", "beninês", "belarusso", "boliviano", "bósnio", "botsuanês", "brasileiro", "bruneíno", "búlgaro", "burkineonse, burkinabé", "burundês", "butanês", "cabo-verdiano", "camerounês", "cambojano", "catariano", "canadense", "cazaque", "chadiano", "chileno", "chinês", "cipriota", "colombiano", "comoriano", "congolês", "congolês", "sul-coreano", "norte-coreano", "costa-marfinense, marfinense", "costa-ricense", "croata", "cubano", "dinamarquês", "djiboutiano", "dominiquense", "egípcio", "salvadorenho", "emiradense, emirático", "equatoriano", "eritreu", "eslovaco", "esloveno", "espanhol", "estadunidense, (norte-)americano", "estoniano", "etíope", "fijiano", "filipino", "finlandês", "francês", "gabonês", "gambiano", "ganês ou ganense", "georgiano", "granadino", "grego", "guatemalteco", "guianês", "guineense", "guineense, bissau-guineense", "equato-guineense", "haitiano", "hondurenho", "húngaro", "iemenita", "cookiano", "marshallês", "salomonense", "indiano", "indonésio", "iraniano", "iraquiano", "irlandês", "islandês", "34", "jamaicano", "japonês", "jordaniano", "kiribatiano", "kuwaitiano", "laosiano", "lesotiano", "letão", "libanês", "liberiano", "líbio", "liechtensteiniano", "lituano", "luxemburguês", "macedônio", "madagascarense", "malásio37", "malawiano", "maldivo", "maliano", "maltês", "marroquino", "mauriciano", "mauritano", "mexicano", "myanmarense", "micronésio", "moçambicano", "moldovo", "monegasco", "mongol", "montenegrino", "namibiano", "nauruano", "nepalês", "nicaraguense", "nigerino", "nigeriano", "niuiano", "norueguês", "neozelandês", "omani", "neerlandês", "palauano", "palestino", "panamenho", "papua, papuásio", "paquistanês", "paraguaio", "peruano", "polonês, polaco", "português", "queniano", "quirguiz", "britânico", "centro-africano", "tcheco", "dominicano", "romeno", "ruandês", "russo", "samoano", "santa-lucense", "são-cristovense", "samarinês", "santomense", "são-vicentino", "seichelense", "senegalês", "sérvio", "singapurense", "sírio", "somaliano, somali", "sri-lankês", "suázi", "sudanês", "sul-sudanês", "sueco", "suíço", "surinamês", "tajique", "tailandês", "tanzaniano", "timorense", "togolês", "tonganês", "trinitário", "tunisiano", "turcomeno", "turco", "tuvaluano", "ucraniano", "ugandês", "uruguaio", "uzbeque", "vanuatuense", "vaticano", "venezuelano", "vietnamita", "zambiano", "zimbabueano"}));
 		contentPane.add(txtNacionalidade);
-		
+
 		JLabel lblNome = new JLabel("NOME");
 		lblNome.setBounds(562, 119, 253, 14);
 		lblNome.setForeground(SystemColor.textInactiveText);
@@ -241,6 +250,8 @@ public class RegistroHospede extends JFrame {
 		txtNreserva.setColumns(10);
 		txtNreserva.setBackground(Color.WHITE);
 		txtNreserva.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+		txtNreserva.setEditable(false);
+		txtNreserva.setEnabled(false);
 		contentPane.add(txtNreserva);
 		
 		JSeparator separator_1_2 = new JSeparator();
@@ -279,11 +290,38 @@ public class RegistroHospede extends JFrame {
 		separator_1_2_5.setBackground(new Color(12, 138, 199));
 		contentPane.add(separator_1_2_5);
 		
+		this.hospedeController = new HospedeController();
+
 		JPanel btnsalvar = new JPanel();
 		btnsalvar.setBounds(723, 560, 122, 35);
 		btnsalvar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				if (txtNome.getText().isEmpty() == false && txtSobrenome.getText().isEmpty() == false && txtDataN.getDate() != null) {	
+					try {
+					String nome = txtNome.getText();
+					String sobrenome = txtSobrenome.getText();
+					SimpleDateFormat padrao = new SimpleDateFormat("yyyy-MM-dd");
+					String dataNascimento = padrao.format(txtDataN.getDate());
+					String nacionalidade = txtNacionalidade.getSelectedItem().toString();
+					String telefone = txtTelefone.getText();
+					Integer idReserva = Integer.parseInt(txtNreserva.getText());
+
+
+					Hospede hospede = new Hospede(nome, sobrenome, txtDataN.getDate(), nacionalidade, telefone, idReserva);
+						hospedeController.salvar(hospede);
+						JOptionPane.showMessageDialog(null, "Hospede Cadastrado Com Sucesso!!");
+						MenuUsuario menu = new MenuUsuario();
+						menu.setVisible(true);
+						dispose();	 
+					} catch (Exception erro) {
+						JOptionPane.showMessageDialog(null, "Erro na hora de Cadastrar");
+					}
+					
+				} else {
+					JOptionPane.showMessageDialog(null, "Deve preencher todos os campos Obrigatorios!");
+				}
+				
 			}
 		});
 		btnsalvar.setLayout(null);
@@ -326,5 +364,8 @@ public class RegistroHospede extends JFrame {
 	        int y = evt.getYOnScreen();
 	        this.setLocation(x - xMouse, y - yMouse);
 }
+	public void setTxtNreserva(Integer idReserva){
+		txtNreserva.setText(String.valueOf(idReserva));
+	}
 											
 }

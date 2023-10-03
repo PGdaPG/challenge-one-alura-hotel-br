@@ -6,6 +6,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
+import controller.HospedeController;
+import controller.ReservaController;
+import model.Hospede;
+import model.Reserva;
+
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ImageIcon;
@@ -20,6 +26,8 @@ import javax.swing.ListSelectionModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class Buscar extends JFrame {
@@ -33,6 +41,9 @@ public class Buscar extends JFrame {
 	private JLabel labelAtras;
 	private JLabel labelExit;
 	int xMouse, yMouse;
+
+	private ReservaController reservaController;
+	private HospedeController hospedeController;
 
 	/**
 	 * Launch the application.
@@ -54,6 +65,9 @@ public class Buscar extends JFrame {
 	 * Create the frame.
 	 */
 	public Buscar() {
+		this.reservaController = new ReservaController();
+		this.hospedeController = new HospedeController();
+
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Buscar.class.getResource("/imagenes/lOGO-50PX.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 910, 571);
@@ -208,7 +222,20 @@ public class Buscar extends JFrame {
 		btnbuscar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-
+				limparTabela();
+				if (txtBuscar.getText().isEmpty()) {
+					preencherTabela(null);
+					preencherTabelaHospede(null);
+					return;
+				}
+				else if (txtBuscar.getText().matches("[0-9]*")) {
+					preencherTabela(Integer.parseInt(txtBuscar.getText()));
+					return;
+				}
+				else  {
+					preencherTabelaHospede(txtBuscar.getText());
+					return;
+				}
 			}
 		});
 		btnbuscar.setLayout(null);
@@ -253,16 +280,53 @@ public class Buscar extends JFrame {
 		btnDeletar.add(lblExcluir);
 		setResizable(false);
 	}
-	
+
 	//Código que permite movimentar a janela pela tela seguindo a posição de "x" e "y"	
-	 private void headerMousePressed(java.awt.event.MouseEvent evt) {
+	private void headerMousePressed(java.awt.event.MouseEvent evt) {
 	        xMouse = evt.getX();
 	        yMouse = evt.getY();
-	    }
+	}
 
-	    private void headerMouseDragged(java.awt.event.MouseEvent evt) {
+	private void headerMouseDragged(java.awt.event.MouseEvent evt) {
 	        int x = evt.getXOnScreen();
 	        int y = evt.getYOnScreen();
 	        this.setLocation(x - xMouse, y - yMouse);
-}
+	}
+	private void limparTabela() {
+		modelo.getDataVector().clear();
+		modeloHospedes.getDataVector().clear();
+	}
+	private void preencherTabela(Integer idInteger) {
+		//this.reservaController.listarSimples();
+			List<Reserva> reservas = listarReserva(idInteger);
+			try {
+				for(Reserva reserva : reservas){
+					modelo.addRow(new Object[] { reserva.getIdReserva(), reserva.getDataEntrada(), reserva.getDataSaida(), reserva.getValor(), reserva.getFormaPagamento()});
+				}
+			} catch (Exception e) {
+				throw e;
+			}
+		
+	}
+
+	private List<Reserva> listarReserva(Integer idReserva) {
+		return this.reservaController.listar(idReserva);
+	}
+
+	private void preencherTabelaHospede(String nome) {
+		List<Hospede> hospedes = listarHospedes(nome);
+		try {
+			for(Hospede hospede : hospedes){
+				modeloHospedes.addRow(new Object[] { hospede.getIdHospede(), hospede.getNome(), hospede.getSobreNome(), hospede.getDataNascimento(), hospede.getNacionalidade(), hospede.getTelefone(), hospede.getNumeroReserva()});
+			}
+			} catch (Exception e) {
+				throw e;
+			}
+
+	}
+
+	private List<Hospede> listarHospedes(String nome) {
+		return this.hospedeController.listar(nome);
+	}
+
 }
