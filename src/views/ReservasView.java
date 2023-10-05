@@ -18,8 +18,6 @@ import model.Reserva;
 import java.awt.Font;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
-import java.text.Format;
-import java.time.LocalDate;
 import java.util.Date;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -363,7 +361,7 @@ public class ReservasView extends JFrame {
 						//converte a data que o usuario escolheu para um DateTime da API joda
 				DateTime dataEntrada = new DateTime(txtDataE.getDate());
 				DateTime dataSaida = new DateTime(txtDataS.getDate());
-				
+
 				int dias = Days.daysBetween(dataEntrada, dataSaida).getDays();
 				int hours = Hours.hoursBetween(dataEntrada, dataSaida).getHours();
 				if (hours < 0) {

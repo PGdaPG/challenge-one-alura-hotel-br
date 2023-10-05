@@ -21,6 +21,12 @@ public class HospedeController {
     public List<Hospede> listar(String nome) {
         return this.hospedeDAO.listar(nome);
     }
+    public void deletar(Integer idHospede) {
+        this.hospedeDAO.deletar(idHospede);
+    }
+    public void alterar(Hospede hospede) {
+        this.hospedeDAO.alterar(hospede);
+    }
 
     
 }

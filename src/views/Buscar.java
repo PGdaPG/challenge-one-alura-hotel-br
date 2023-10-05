@@ -7,6 +7,8 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
+import org.joda.time.DateTime;
+
 import controller.HospedeController;
 import controller.ReservaController;
 import model.Hospede;
@@ -16,7 +18,10 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ImageIcon;
 import java.awt.Color;
+
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JTabbedPane;
 import java.awt.Toolkit;
@@ -26,8 +31,11 @@ import javax.swing.ListSelectionModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+
+
 
 @SuppressWarnings("serial")
 public class Buscar extends JFrame {
@@ -45,6 +53,8 @@ public class Buscar extends JFrame {
 	private ReservaController reservaController;
 	private HospedeController hospedeController;
 
+	private int tabelaSelecionada;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -97,8 +107,14 @@ public class Buscar extends JFrame {
 		panel.setFont(new Font("Roboto", Font.PLAIN, 16));
 		panel.setBounds(20, 169, 865, 328);
 		contentPane.add(panel);
-				
-		tbReservas = new JTable();
+		// aqui declaramos uma nova tabela
+		// e sobre escreve o metodo isCellEditable passando quais celulas o usuario podera editar		
+		tbReservas = new JTable() {
+			@Override
+			public boolean isCellEditable(int row, int column) {                
+				return column == 1 || column == 2 || column == 3 || column == 4;               
+			};
+		};
 		tbReservas.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tbReservas.setFont(new Font("Roboto", Font.PLAIN, 16));
 		modelo = (DefaultTableModel) tbReservas.getModel();
@@ -110,9 +126,14 @@ public class Buscar extends JFrame {
 		JScrollPane scroll_table = new JScrollPane(tbReservas);
 		panel.addTab("Reservas", new ImageIcon(Buscar.class.getResource("/imagenes/reservado.png")), scroll_table, null);
 		scroll_table.setVisible(true);
-		
-		
-		tbHospedes = new JTable();
+
+
+		tbHospedes = new JTable() {
+			@Override
+			public boolean isCellEditable(int row, int column) {                
+				return column == 1 || column == 2 || column == 3 || column == 4 || column == 5 ;               
+			};
+		};
 		tbHospedes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tbHospedes.setFont(new Font("Roboto", Font.PLAIN, 16));
 		modeloHospedes = (DefaultTableModel) tbHospedes.getModel();
@@ -219,25 +240,6 @@ public class Buscar extends JFrame {
 		contentPane.add(separator_1_2);
 		
 		JPanel btnbuscar = new JPanel();
-		btnbuscar.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				limparTabela();
-				if (txtBuscar.getText().isEmpty()) {
-					preencherTabela(null);
-					preencherTabelaHospede(null);
-					return;
-				}
-				else if (txtBuscar.getText().matches("[0-9]*")) {
-					preencherTabela(Integer.parseInt(txtBuscar.getText()));
-					return;
-				}
-				else  {
-					preencherTabelaHospede(txtBuscar.getText());
-					return;
-				}
-			}
-		});
 		btnbuscar.setLayout(null);
 		btnbuscar.setBackground(new Color(12, 138, 199));
 		btnbuscar.setBounds(748, 125, 122, 35);
@@ -279,6 +281,174 @@ public class Buscar extends JFrame {
 		lblExcluir.setBounds(0, 0, 122, 35);
 		btnDeletar.add(lblExcluir);
 		setResizable(false);
+
+		//metodo para saber qual tabela o usuario esta vendo.
+		panel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent event) {
+				tabelaSelecionada = panel.getSelectedIndex();
+			}
+		});
+
+		btnbuscar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent event) {
+				limparTabela();
+				//logica para saber qual metodo de qual tabela chamar
+				switch (tabelaSelecionada) {
+					case 0:
+						if (txtBuscar.getText().isEmpty()) {
+							preencherTabela(null);
+						} else if (txtBuscar.getText().matches("[0-9]*")) {
+							preencherTabela(Integer.parseInt(txtBuscar.getText()));
+						} else {
+							JOptionPane.showMessageDialog(null, "Numero da Reserva deve ser um NUMERO");
+						}
+						break;
+					case 1:
+						if (txtBuscar.getText().isEmpty()) {
+							preencherTabelaHospede(null);
+						} else {
+							preencherTabelaHospede(txtBuscar.getText());
+						}
+						break;
+				}
+			}
+		});
+
+		btnDeletar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent event) {
+
+			switch (tabelaSelecionada) {
+				case 0:
+					deletarReserva();
+					limparTabela();
+					preencherTabela(null);
+					break;
+				case 1:
+					deletarHospede();
+					limparTabela();
+					preencherTabelaHospede(null);
+					break;
+				}
+			}
+	
+			private void deletarHospede() {
+				try {
+					Integer idHospede = (Integer) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 0);
+					System.out.println(idHospede);
+					hospedeController.deletar(idHospede);
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(null, "Erro inesperado: " + e.getMessage());
+					throw new RuntimeException(e);
+				}
+			}
+
+			private void deletarReserva() {
+				try {
+					Integer idReserva = (Integer) modelo.getValueAt(tbReservas.getSelectedRow(), 0);
+					System.out.println(idReserva);
+					reservaController.deletar(idReserva);
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(null, "Erro inesperado: " + e.getMessage());
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		
+		btnEditar.addMouseListener(new MouseAdapter() {
+		@Override
+		public void mouseClicked(MouseEvent e){
+			switch (tabelaSelecionada) {
+				case 0:
+					alterarReserva();
+					break;
+				case 1:
+					alterarHospede();
+					break;
+				}
+			
+		}
+		});
+	}
+
+	private void alterarHospede() {
+		SimpleDateFormat padrao = new SimpleDateFormat("yyyy-MM-dd");
+		Object objetoDaLinha = (Object) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 0);
+		if (objetoDaLinha instanceof Integer) {
+			try {
+				String nome = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 1);
+				
+				String sobrenome = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 2);
+
+				DateTime dataNascimentoDATADateTime = new DateTime(modeloHospedes.getValueAt(tbHospedes.getSelectedRow(),3));
+				Date dataNascimento = (Date) dataNascimentoDATADateTime.toDate();
+
+				String nacionalidade = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 4);
+
+				String telefone = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 5);
+
+				//Object objNumeroDaReserva = (Object) modelo.getValueAt(tbReservas.getSelectedRow(), 6);
+				Integer numeroDaReserva = (Integer) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 6);
+
+				Hospede hospede = new Hospede((Integer)objetoDaLinha, nome, sobrenome, dataNascimento, nacionalidade, telefone, numeroDaReserva);
+
+				try {
+					this.hospedeController.alterar(hospede);
+					JOptionPane.showMessageDialog(this, "Dados do Hospede Atualizado com sucesso");
+					limparTabela();
+					preencherTabelaHospede(hospede.getNome());
+
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(this, "Erro ao Alterar Reserva!");
+				}
+
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(this, "Preencher campos corretamente");
+			}
+			
+		} else {
+			JOptionPane.showMessageDialog(this, "Por favor, selecionar o ID");
+		}
+	}
+
+	private void alterarReserva() {
+		SimpleDateFormat padrao = new SimpleDateFormat("yyyy-MM-dd");
+		Object objetoDaLinha = (Object) modelo.getValueAt(tbReservas.getSelectedRow(), 0);
+		if (objetoDaLinha instanceof Integer) {
+			try {
+				DateTime dataEntradaDATADateTime = new DateTime(modelo.getValueAt(tbReservas.getSelectedRow(), 1));
+				Date dataEntrada = (Date) dataEntradaDATADateTime.toDate();
+
+				DateTime dataSaidaDATADateTime = new DateTime(modelo.getValueAt(tbReservas.getSelectedRow(),2));
+				Date dataSaida = (Date) dataSaidaDATADateTime.toDate();
+
+				Object objValor = (Object) modelo.getValueAt(tbReservas.getSelectedRow(), 3);
+				Double valor = Double.parseDouble(objValor.toString());
+
+				String formaPagamento = (String) modelo.getValueAt(tbReservas.getSelectedRow(), 4);
+
+				Reserva reserva = new Reserva((Integer)objetoDaLinha, dataEntrada, dataSaida, valor, formaPagamento);
+				System.out.println(reserva.toString());
+
+				try {
+					this.reservaController.alterarReserva(reserva);
+					JOptionPane.showMessageDialog(this, "Reserva Alterada Com Sucesso!!");
+					limparTabela();
+					preencherTabela(reserva.getIdReserva());
+
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(this, "Erro ao Alterar Reserva!");
+				}
+
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(this, "Preencher campos corretamente");
+			}
+
+		} else {
+			JOptionPane.showMessageDialog(this, "Por favor, selecionar o ID");
+		}
 	}
 
 	//Código que permite movimentar a janela pela tela seguindo a posição de "x" e "y"	

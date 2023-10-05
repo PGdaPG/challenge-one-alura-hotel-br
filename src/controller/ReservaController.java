@@ -24,4 +24,10 @@ public class ReservaController {
     public void listarSimples(){
         this.reservaDAO.listarSimples();
     }
+    public void alterarReserva(Reserva reserva) {
+        this.reservaDAO.alterarReserva(reserva);
+    }
+    public void deletar(Integer idReserva) {
+        this.reservaDAO.deletar(idReserva);
+    }
 }

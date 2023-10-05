@@ -70,12 +70,12 @@ public class Hospede {
         this.numeroReserva = numeroReserva;
     }
     
-    public String getDataNascionalidadeFormatada() {
+    public String getDataNascimentoFormatada() {
         SimpleDateFormat padrao = new SimpleDateFormat("yyyy-MM-dd");
         return padrao.format(this.dataNascimento);
     }
 
-    public Object getIdHospede() {
+    public int getIdHospede() {
         return this.idHospede;
     }
 

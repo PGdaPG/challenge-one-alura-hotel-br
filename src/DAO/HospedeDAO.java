@@ -25,7 +25,7 @@ public class HospedeDAO {
                 
                 pstm.setString(1, hospede.getNome());
                 pstm.setString(2, hospede.getSobreNome());
-                pstm.setString(3, hospede.getDataNascionalidadeFormatada());
+                pstm.setString(3, hospede.getDataNascimentoFormatada());
                 pstm.setString(4, hospede.getNacionalidade());
                 pstm.setString(5, hospede.getTelefone());
                 pstm.setInt(6, hospede.getNumeroReserva());
@@ -69,7 +69,33 @@ public List<Hospede> listar(String nome) {
                 hospede.toString();
                 hospedes.add(hospede);
             }
+        }
+    }
 
+    public void deletar(Integer idHospede) {
+        String sql = "DELETE FROM hospedes where id_hospede = ?";
+        try (PreparedStatement pstm = connection.prepareStatement(sql)) {
+            pstm.setInt(1, idHospede);
+            System.out.println(pstm.toString());
+            pstm.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void alterar(Hospede hospede) {
+        String sql = "UPDATE hospedes SET nome = ?, sobrenome = ?, data_nascimento = ?, nacionalidade = ?, telefone = ? WHERE id_hospede = ?";
+        try (PreparedStatement pstm = connection.prepareStatement(sql)) {
+            pstm.setString(1, hospede.getNome());
+            pstm.setString(2, hospede.getSobreNome());
+            pstm.setDate(3, java.sql.Date.valueOf(hospede.getDataNascimentoFormatada()));
+            pstm.setString(4, hospede.getNacionalidade());
+            pstm.setString(5, hospede.getTelefone());
+            pstm.setInt(6, hospede.getIdHospede());
+            System.out.println(pstm.toString());
+            pstm.execute();
+        } catch (Exception e) {
+            // TODO: handle exception
         }
     }
 }

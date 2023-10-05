@@ -6,10 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import controller.ReservaController;
 import model.Reserva;
 
 public class ReservaDAO {
@@ -65,7 +63,6 @@ public class ReservaDAO {
     }
     public List<Reserva> listar(Integer idReserva) {
         List<Reserva> reservas = new ArrayList<Reserva>();
-
         try {
             String sql;
             if (idReserva == null) {
@@ -79,21 +76,45 @@ public class ReservaDAO {
                 }
                 pstm.execute();
 
-                transformarResultSetEmProduto(reservas , pstm);
+                transformarResultSetEmReserva(reservas , pstm);
             } 
             return reservas;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-    private void transformarResultSetEmProduto(List<Reserva> reservas, PreparedStatement pstm) throws SQLException{
+    private void transformarResultSetEmReserva(List<Reserva> reservas, PreparedStatement pstm) throws SQLException{
         try (ResultSet rst = pstm.getResultSet()) {
             while (rst.next()) {
                 Reserva reserva = new Reserva(rst.getInt(1), rst.getDate(2), rst.getDate(3), rst.getDouble(4) , rst.getString(5));
                 reserva.toString();
                 reservas.add(reserva);
             }
-
+        }
+    }
+    public void alterarReserva(Reserva reserva) {
+        String sql = "UPDATE reservas r SET r.data_entrada = ?, data_saida = ?, valor = ?, ds_forma_pagamento = ? WHERE id_reserva = ?";
+        try (PreparedStatement pstm = connection.prepareStatement(sql)) {
+            pstm.setDate(1, java.sql.Date.valueOf(reserva.getDataEntradaFormatada()));
+            pstm.setDate(2, java.sql.Date.valueOf(reserva.getDataSaidaFormatada()));
+            pstm.setDouble(3, reserva.getValor());
+            pstm.setString(4, reserva.getFormaPagamento());
+            pstm.setInt(5, reserva.getIdReserva());
+            System.out.println(pstm.toString());
+            pstm.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }   
+    }
+    public void deletar(Integer idReserva) {
+        String sql = "DELETE FROM reservas WHERE id_reserva = ?";
+        try (PreparedStatement pstm = connection.prepareStatement(sql)) {
+            pstm.setInt(1, idReserva);
+            System.out.println(pstm.toString());
+            pstm.execute();
+            
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }
